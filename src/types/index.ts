@@ -1,12 +1,12 @@
 export interface Question {
   id: number;
   text: string;
-  category: 'emotional' | 'lifestyle' | 'vision';
+  type: 'self' | 'partner'; // Ensure this is 'type', not 'category'
 }
 
 export interface UserResponse {
   questionId: number;
   answer: string;
-  category: string;
+  type: 'self' | 'partner'; 
   realLifeMatch?: string;
 }

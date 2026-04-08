@@ -2,53 +2,82 @@ import { useState } from 'react';
 import { QUESTIONS } from '../../data';
 import type { UserResponse } from '../../types';
 
-export default function RealityCheck({ responses, onComplete }: { responses: UserResponse[], onComplete: (res: UserResponse[]) => void }) {
+interface Props {
+  responses: UserResponse[]; // The 13 Partner questions
+  fullResponses: UserResponse[]; // All 27 questions
+  onComplete: (data: UserResponse[]) => void;
+}
+
+export default function RealityCheck({ responses, fullResponses, onComplete }: Props) {
   const [mapping, setMapping] = useState<Record<number, string>>({});
 
   const handleFinish = () => {
-    const finalData = responses.map(res => ({
-      ...res,
-      realLifeMatch: mapping[res.questionId] || "N/A"
-    }));
+    // Logic: If the user left a field blank, we default it to "No one yet"
+    const finalData = fullResponses.map(res => {
+      if (res.type === 'partner') {
+        const userValue = mapping[res.questionId]?.trim();
+        return { 
+          ...res, 
+          realLifeMatch: userValue || 'No one yet' 
+        };
+      }
+      return res;
+    });
+    
     onComplete(finalData);
   };
 
   return (
-    <div className="animate-in pb-12">
-      <div className="px-8 pt-12 pb-6 text-center md:text-left">
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Trait Mapping 🔍</h1>
-        <p className="text-slate-500 mt-2">Who in your life already exhibits these traits?</p>
+    <div className="animate-in">
+      <div className="sticky-header">
+        <h2 className="text-xl font-black">Part 3: The Reality Bridge</h2>
+        <p className="text-sm text-slate-500">Connecting your vision to the real world.</p>
       </div>
 
-      {responses.map((res, i) => {
-        const qText = QUESTIONS.find(q => q.id === res.questionId)?.text;
-        return (
-          <div key={res.questionId} className="mapping-card mx-6">
-            <div className="q-preview">
-              <p className="text-[10px] font-black uppercase text-purple-500 tracking-widest mb-1">Trait {i + 1}</p>
-              <p className="font-bold text-slate-800 text-sm leading-tight">{qText}</p>
-              <div className="bg-slate-50 p-4 rounded-2xl mt-3 border border-slate-100">
-                <p className="italic text-slate-500 text-sm">"{res.answer}"</p>
+      <div className="p-6">
+        <div className="bg-purple-50 p-4 rounded-2xl mb-8 border border-purple-100">
+          <p className="text-sm text-purple-800 leading-relaxed padding-1">
+            Look at your expectations below. Who is the closest example of this energy in your life? 
+            <br /><span className="text-[10px] font-bold opacity-70">(Leave blank if no one fits yet)</span>
+          </p>
+        </div>
+
+        {responses.map((res) => {
+          const questionObj = QUESTIONS.find(q => q.id === res.questionId);
+          
+          return (
+            <div key={res.questionId} className="mapping-card mb-10">
+              <h4 className="text-md font-bold text-slate-800 mb-3">
+                {questionObj?.text} 
+              </h4>
+
+              {/* User's Stage 2 Answer */}
+              <div className="bg-slate-50 p-4 rounded-xl italic text-slate-600 text-sm border-l-4 border-purple-400 mb-5">
+                "{res.answer}"
+              </div>
+
+              {/* Thoughtful Mapping Input */}
+              <div className="name-input-box">
+                <label className="text-purple-600 font-extrabold">
+                  Does anyone embodies this energy?
+                </label>
+                <input
+                  type="text"
+                  placeholder="Type a name or leave blank..."
+                  value={mapping[res.questionId] || ''}
+                  onChange={(e) => setMapping(prev => ({ ...prev, [res.questionId]: e.target.value }))}
+                />
               </div>
             </div>
+          );
+        })}
 
-            <div className="mt-6">
-              <label className="text-[10px] font-black uppercase text-slate-400 block mb-1">Person with this trait:</label>
-              <input 
-                type="text" 
-                placeholder="Name or N/A"
-                value={mapping[res.questionId] || ""}
-                onChange={(e) => setMapping(prev => ({ ...prev, [res.questionId]: e.target.value }))}
-                className="w-full border-b-2 border-slate-200 focus:border-purple-500 outline-none py-2 text-lg font-bold bg-transparent"
-              />
-            </div>
-          </div>
-        );
-      })}
-
-      <div className="px-6">
-        <button onClick={handleFinish} className="main-btn">
-          Analyze My Data ➔
+        {/* Button is now always enabled for a better UX */}
+        <button 
+          onClick={handleFinish} 
+          className="main-btn mt-4 mb-20"
+        >
+          Finalize My Soul Map ➔
         </button>
       </div>
     </div>

@@ -9,22 +9,28 @@ export default function Report({ data, userName }: { data: UserResponse[], userN
   const [copied, setCopied] = useState(false);
   const hasSaved = useRef(false); // Prevents double-saving data
 
-  // 1. CONSTRUCT THE PROMPT
-  const magicPrompt = `Act as a Professional Personality Analyst. 
-My name is ${userName}. I have provided a detailed self-reflection mapping my life vision and inner needs against real people I know.
+  // 1. CONSTRUCT THE UPDATED 27-QUESTION STRUCTURED PROMPT
+  const magicPrompt = `Act as a Professional Personality Analyst and Master Life Coach. 
+My name is ${userName}. I have completed a 27-step deep-mapping funnel divided into three distinct psychological layers.
 
-USER DATA FOR ${userName.toUpperCase()}:
-${data.map((res, _i) => {
+### DATA STRUCTURE FOR YOUR ANALYSIS:
+- LAYER 1 (THE MIRROR): My internal baseline, emotional triggers, and shadow traits.
+- LAYER 2 (THE VISION): My conscious and subconscious expectations in a partner.
+- LAYER 3 (THE REALITY): How my current world (real names provided) maps to those expectations.
+
+### COMPLETE DATASET:
+${data.map((res) => {
   const qText = QUESTIONS.find(q => q.id === res.questionId)?.text;
-  return `[Question]: ${qText}\n[${userName}'s Answer]: ${res.answer}\n[Person Reference]: ${res.realLifeMatch || 'N/A'}`;
+  const section = res.type === 'self' ? 'MIRROR' : 'VISION';
+  return `[${section}] ${qText}\nAnswer: ${res.answer}${res.realLifeMatch ? `\nReality Reference: ${res.realLifeMatch}` : ''}`;
 }).join('\n\n')}
 
 PLEASE PROVIDE THE REPORT IN THESE 4 SPECIFIC SECTIONS:
 
-1. MY PERSONALITY: Analyze my answers to describe my own personality. What are my core values and how do I approach life?
-2. MY EXPECTATIONS: Based on what I wrote, what am I clearly expecting from my relationships and future? What is most important to me?
-3. MY IDEAL PARTNER ARCHETYPE: Describe the personality profile of the person I am looking for. What specific "energy" or "vibe" do they need to have to match me?
-4. REALITY CHECK & MATCH ANALYSIS: Look at the names I provided (like Charan, Chaitu, etc.). Based on the traits I associated with them, which of these people is the closest match to my requirements? Explain why their personality type is a fit for me.
+1. MY PERSONALITY (THE MIRROR): Based on my Stage 1 answers, analyze my core values, emotional patterns, and how I approach life. What defines me?
+2. MY EXPECTATIONS (THE VISION): Based on Stage 2, what am I subconsciously and consciously looking for in a partner? Is there a gap between who I AM and what I WANT?
+3. MY IDEAL PARTNER ARCHETYPE: Describe the soul profile or "energy" of the person I am looking for. What specific vibe do they need to have to truly match my soul?
+4. REALITY CHECK & MATCH ANALYSIS: Look at the names I provided in Layer 3. Based on the traits I associated with them, who is the closest match to my requirements? If I wrote "No one yet" frequently, what does that say about my current standards or environment?
 
 Note: Address me directly as ${userName} in a warm, insightful, and clear manner.`.trim();
 
@@ -80,7 +86,7 @@ Note: Address me directly as ${userName} in a warm, insightful, and clear manner
       </div>
 
       <div className="flex flex-col gap-3 mb-10">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Recommended Platforms</p>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Recommended Platforms</p>
         <div className="flex gap-3">
           <a href="https://gemini.google.com" target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center gap-2 py-4 bg-slate-100 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all">
             Open Gemini <ExternalLink size={14}/>

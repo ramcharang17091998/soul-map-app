@@ -1,57 +1,57 @@
-import { useState, useEffect } from 'react';
-import { QUESTIONS } from '../../data';
-import type { UserResponse } from '../../types';
+import { useState } from 'react';
+import type { UserResponse, Question } from '../../types';
 
-export default function StageOne({ onComplete }: { onComplete: (res: UserResponse[]) => void }) {
+interface Props {
+  questions: Question[];
+  onComplete: (data: UserResponse[]) => void;
+  title: string;
+  subtitle: string;
+}
+
+export default function StageOne({ questions, onComplete, title, subtitle }: Props) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [progress, setProgress] = useState(0);
 
-  useEffect(() => {
-    const count = Object.values(answers).filter(val => val.trim().length > 0).length;
-    setProgress(Math.round((count / QUESTIONS.length) * 100));
-  }, [answers]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const result: UserResponse[] = QUESTIONS.map(q => ({
+  const handleFinish = () => {
+    const data: UserResponse[] = questions.map(q => ({
       questionId: q.id,
-      answer: answers[q.id] ? answers[q.id].trim() : "",
-      category: q.category
+      answer: answers[q.id] || '',
+      type: q.type
     }));
-    onComplete(result);
+    onComplete(data);
   };
+
+  const isComplete = questions.every(q => answers[q.id]?.trim());
 
   return (
     <div className="animate-in">
       <div className="sticky-header">
-        <div className="progress-bg">
-          <div className="progress-fill" style={{ width: `${progress}%` }}></div>
-        </div>
-        <p>{progress}% Soul Reflection Complete</p>
+        <h2 className="text-xl font-bold">{title}</h2>
+        <p className="text-sm text-slate-500">{subtitle}</p>
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="section-head">💙 Part 1: Your Vision</div>
-        {QUESTIONS.map((q, i) => (
-          <div key={q.id}>
-            {i === 12 && <div className="section-head mt-12">🧠 Part 2: Inner Needs</div>}
-            <div className="input-group">
-              <label>{i + 1}. {q.text}</label>
-              <textarea 
-                required
-                placeholder="Share your thoughts here..."
-                value={answers[q.id] || ""}
-                onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
-              />
-            </div>
+      <div className="p-6">
+        {questions.map((q) => (
+          <div key={q.id} className="input-group">
+            <label>{q.text}</label>
+            <textarea
+              value={answers[q.id] || ''}
+              onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+              placeholder="Reflect deeply here..."
+            />
           </div>
         ))}
-        <div className="px-6">
-          <button type="submit" className="main-btn">
-            Next: Reality Mapping ➔
-          </button>
-        </div>
-      </form>
+
+        <button 
+          onClick={handleFinish} 
+          disabled={!isComplete} 
+          className="main-btn"
+        >
+          Continue ➔
+        </button>
+      </div>
     </div>
   );
 }
+
+// to build - npm run build
+// to deploy - firebase deploy --only hosting
