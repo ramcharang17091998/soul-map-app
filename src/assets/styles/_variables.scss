@@ -1,0 +1,33 @@
+// Colors
+$purp-main: #A855F7;
+$pink-main: #EC4899;
+$blue-main: #3B82F6;
+$green-main: #10B981;
+
+// Gradients
+$grad-primary: linear-gradient(135deg, #A855F7 0%, #EC4899 100%);
+$grad-surface: linear-gradient(180deg, #FFFFFF 0%, #FDF2F8 100%);
+
+// Surfaces
+$bg-app: #F8FAFC;
+$white: #FFFFFF;
+
+// Layout
+$radius-xl: 2rem;    // For main cards
+$radius-md: 1rem;    // For buttons/inputs
+$shadow-sm: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+$shadow-lg: 0 20px 25px -5px rgba(168, 85, 247, 0.15);
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin glass-effect {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
