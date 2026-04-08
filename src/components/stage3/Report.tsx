@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { db } from '../../firebase'; // Adjust path if your firebase.ts is elsewhere
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { QUESTIONS } from '../../data';
 import type { UserResponse } from '../../types';
 import { Copy, ClipboardCheck, ExternalLink } from 'lucide-react';
 
 export default function Report({ data, userName }: { data: UserResponse[], userName: string }) {
   const [copied, setCopied] = useState(false);
+  const hasSaved = useRef(false); // Prevents double-saving data
 
-  // NEW STRUCTURED PROMPT FOR BETTER AI ANALYSIS
+  // 1. CONSTRUCT THE PROMPT
   const magicPrompt = `Act as a Professional Personality Analyst. 
 My name is ${userName}. I have provided a detailed self-reflection mapping my life vision and inner needs against real people I know.
 
@@ -24,6 +27,28 @@ PLEASE PROVIDE THE REPORT IN THESE 4 SPECIFIC SECTIONS:
 4. REALITY CHECK & MATCH ANALYSIS: Look at the names I provided (like Charan, Chaitu, etc.). Based on the traits I associated with them, which of these people is the closest match to my requirements? Explain why their personality type is a fit for me.
 
 Note: Address me directly as ${userName} in a warm, insightful, and clear manner.`.trim();
+
+  // 2. SAVE TO FIREBASE ON LOAD
+  useEffect(() => {
+    const logReportToFirebase = async () => {
+      if (hasSaved.current) return;
+      
+      try {
+        await addDoc(collection(db, "user_reports"), {
+          userName: userName,
+          generatedPrompt: magicPrompt,
+          timestamp: serverTimestamp(),
+          responsesCount: data.length
+        });
+        hasSaved.current = true;
+        console.log("Analytics: Report stored successfully.");
+      } catch (error) {
+        console.error("Firebase Storage Error:", error);
+      }
+    };
+
+    logReportToFirebase();
+  }, [userName, magicPrompt, data.length]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(magicPrompt);

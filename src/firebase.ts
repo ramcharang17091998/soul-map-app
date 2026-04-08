@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -20,4 +21,5 @@ const app = initializeApp(firebaseConfig);
 // Exporting these constants allows them to be used elsewhere 
 // and prevents the TypeScript "unused variable" error.
 export const analytics = getAnalytics(app);
+export const db = getFirestore(app);
 export default app;
